@@ -1,2 +1,2 @@
-# NmgUtils-releases
-NmgUtils - wydania
+# NpeUtils-releases
+npeUtils - wydania
