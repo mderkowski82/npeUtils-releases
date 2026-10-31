@@ -1,0 +1,2 @@
+# NmgUtils-releases
+NmgUtils - wydania
