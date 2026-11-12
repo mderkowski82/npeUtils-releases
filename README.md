@@ -116,7 +116,7 @@ npeUtils puts the tools for that stack into one small window that works entirely
 - **Diff** – lines / words / characters, unified diff for a PR.
 - **Lines** – natural sort, dedup, regex filter, prefix / suffix, numbering, CRLF / LF, BOM.
 
-<p align="center"><img src="screenshots/11-home-light.png" width="880" alt="Start page in the light theme"></p>
+<p align="center"><img src="screenshots/12-diff.png" width="880" alt="Text comparison: two Spring Boot configs diffed line by line with a unified diff to copy"></p>
 
 ## Install
 
