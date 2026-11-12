@@ -142,7 +142,7 @@ Everything runs locally. No account, no telemetry, no analytics. The only outbou
 | TCP port check | only when you click *Port* in Connection string | the host you typed |
 | Kafka brokers | only in Kafka Live, to brokers you configured | your brokers |
 
-Nothing you paste is ever sent anywhere. Kafka Live connection passwords are stored in the local app data folder encoded, not encrypted; use a dedicated read-only account where possible.
+Nothing you paste is ever sent anywhere. Kafka Live connection passwords are encrypted with Windows DPAPI for the current user (the same mechanism browsers use), so the connections file is useless under another account or on another machine; use a dedicated read-only Kafka account where possible.
 
 ## Feedback
 
@@ -168,6 +168,6 @@ Bugs and ideas: [open an issue](https://github.com/mderkowski82/npeUtils-release
 
 **Język.** Interfejs jest po polsku i po angielsku (Ustawienia → Język; domyślnie język systemu). Zamknięcie okna chowa aplikację do zasobnika przy zegarku; „Zakończ” w menu ikony ją zamyka.
 
-**Prywatność.** Jedyne połączenia sieciowe to: sprawdzenie aktualizacji i pobranie modułu dużych logów (to repozytorium), odczyt czasu dla ważności wersji (nagłówek HTTP `Date`), test portu w Connection string (host, który wpiszesz) oraz brokery Kafki wskazane ręcznie w Kafka Live. Nic, co wklejasz, nie jest nigdzie wysyłane.
+**Prywatność.** Jedyne połączenia sieciowe to: sprawdzenie aktualizacji i pobranie modułu dużych logów (to repozytorium), odczyt czasu dla ważności wersji (nagłówek HTTP `Date`), test portu w Connection string (host, który wpiszesz) oraz brokery Kafki wskazane ręcznie w Kafka Live. Nic, co wklejasz, nie jest nigdzie wysyłane. Hasła połączeń Kafka Live są szyfrowane Windows DPAPI dla bieżącego użytkownika.
 
 **Zgłoszenia.** Błędy i pomysły: [issues](https://github.com/mderkowski82/npeUtils-releases/issues). Podaj narzędzie, wersję (Ustawienia → Aktualizacje) i, jeśli możesz, zanonimizowane wejście, na którym coś poszło nie tak.
