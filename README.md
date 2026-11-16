@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>An offline desktop toolbox for people who keep Java / WildFly / Oracle / Kafka systems running.</b><br>
-  Paste anything, get the right tool with the answer already filled in. 3 MB. No account. No data ever leaves your machine.
+  Paste anything, get the right tool with the answer already filled in. About 4.5 MB. No account. No data ever leaves your machine.
 </p>
 
 <p align="center">
@@ -30,15 +30,16 @@ npeUtils puts the tools for that stack into one small window that works entirely
 
 - **Paste anything.** The start page recognises a timestamp, JWT, UUID, ORA- code, WildFly / Narayana / Artemis code, ROWID, Quartz cron, Oracle connection string, SQL, JSON, Java class, stack trace, thread dump, log lines, properties file, Base64 or a list of values, and suggests the tools for it. `Ctrl+K` searches tools from anywhere.
 - **Built for one stack.** Java / Spring / Jakarta EE, WildFly / JBoss, Oracle, Kafka. Not a generic "every developer" toolbox: it knows ROWIDs, `TO_CHAR` masks, IronJacamar pools, Narayana transaction codes, murmur2 partitions.
-- **Local by design.** Logs, tokens, thread dumps and connection strings stay on your machine. See [Privacy](#privacy) for the complete list of network calls.
-- **Small and fast.** Tauri 2 + Rust, system WebView2, no Electron. The installer is about 3 MB, the app starts instantly and lives in the system tray.
+- **Local by design.** Logs, tokens, thread dumps and connection strings stay on your machine. The optional MCP server for AI agents opens no network port, but whatever an agent reads through it goes to that agent's model provider. See [Privacy](#privacy) for the complete list of network calls.
+- **Small and fast.** Tauri 2 + Rust, system WebView2, no Electron. The installer is about 4.5 MB, the app starts instantly and lives in the system tray.
+- **AI agents, if you want them.** An optional MCP server (off by default) lets Claude Code, Claude Desktop or Cursor analyse logs with the DuckDB module, read Kafka through your saved Kafka Live connections and use the app's own tools (44 tools in 11 groups you can turn off; the agent gets the same result as the window), with a per-connection access level (hidden, read, read and send) and a log of every call.
 - **English and Polish UI**, light and dark theme, automatic signed updates.
 
 ## Who it is for
 
 | You are | Typical pain | What you get |
 | --- | --- | --- |
-| **Java / Spring developer** | 400-line stack traces, DTOs to write from JSON, a regex that works in JS but not in Java | Stack trace cleanup with root cause, JSON ↔ Java (records / Lombok / Jackson annotations), Properties ↔ YAML, regex tester that flags Java-vs-JS differences, live `DateTimeFormatter` tester |
+| **Java / Spring developer** | 400-line stack traces, DTOs to write from JSON, a regex that works in JS but not in Java | Stack trace cleanup with root cause, JSON ↔ Java (records / Lombok / Jackson annotations), Properties ↔ YAML, regex tester with Java syntax, live `DateTimeFormatter` tester |
 | **Helpdesk / 2nd-line support** | the ticket has an epoch and an `ORA-01555` or `WFLYEJB0034` and nobody knows what they mean | Timestamp both ways, offline dictionaries of 123 ORA- errors and 168 WildFly / Artemis codes with causes and "what to check", log analyser filtered by a customer ID |
 | **Application admin / DevOps / SRE** | a 2 GB `server.log` inside a ZIP, a `jstack` dump, "is the server stuck on the JDBC pool?" | Log analyser (ZIP / GZ / TAR, DuckDB module for huge files), thread dump analyser with deadlocks and exhausted pools, certificate inspector, connection string with a port check |
 | **Oracle DBA / developer** | 3 000 IDs for an `IN (...)`, a ROWID from a log, a `TO_CHAR` mask to port to Java | IN list in batches of 1 000 (ORA-01795), ROWID decoder, date mask converter, SQL formatter that fills Hibernate `?` parameters, 16 ready diagnostic queries |
@@ -80,7 +81,7 @@ npeUtils puts the tools for that stack into one small window that works entirely
 - **Properties ↔ YAML** – Spring Boot configuration both ways.
 - **JSON → Java** – record / POJO / Lombok with type inference and Jackson annotations.
 - **Java → JSON** – sample request / response JSON from a DTO (several classes, enums, base class); honours `@JsonProperty`, `@JsonIgnore`, `@JsonNaming`, `@JsonFormat`; values picked by field name.
-- **Regex and date formats** – regex tester that detects Java / JS differences, Java literal, snippet; `DateTimeFormatter` tester.
+- **Regex and date formats** – regex tester with Java syntax (possessive quantifiers, atomic groups, `\Q…\E`, Java classes; a runaway pattern stops at a backtrack limit instead of hanging), Java literal, snippet; `DateTimeFormatter` tester.
 
 <p align="center"><img src="screenshots/08-java-to-json.png" width="880" alt="Java to JSON: a record with Jackson annotations turned into a sample request"></p>
 
@@ -100,7 +101,7 @@ npeUtils puts the tools for that stack into one small window that works entirely
 
 ### Security
 
-- **JWT** – header, payload, claims with times, HS / RS / PS / ES signature check (Web Crypto, local).
+- **JWT** – header, payload, claims with times, HS / RS / PS / ES signature check (local).
 - **Certificates** – PEM / DER: subject, issuer, validity, SAN, fingerprints.
 - **Hash and HMAC** – MD5, SHA-1/256/384/512, CRC32 for text and files, compare with expected.
 - **UUID and secrets** – v4 / v7 in bulk, inspection (time from v7), passwords and secrets.
@@ -139,10 +140,14 @@ Everything runs locally. No account, no telemetry, no analytics. The only outbou
 | Update check (`latest.json`) | on start and every hour | github.com (this repository) |
 | Large log module download | only when you click *Download* in Settings | github.com (this repository) |
 | Version validity time check (HTTP `Date` header only) | on start and every hour | github.com, then microsoft.com |
-| TCP port check | only when you click *Port* in Connection string | the host you typed |
+| TCP port check | only when you click *Port* in Connection string, or when you let an agent run `oracle_port_check` | the host you typed (or the agent named) |
 | Kafka brokers | only in Kafka Live, to brokers you configured | your brokers |
 
-Nothing you paste is ever sent anywhere. Kafka Live connection passwords are encrypted with Windows DPAPI for the current user (the same mechanism browsers use), so the connections file is useless under another account or on another machine; use a dedicated read-only Kafka account where possible.
+Nothing you paste is ever sent anywhere by npeUtils.
+
+**MCP server for AI agents.** It is off by default and you turn it on in Settings. It opens no network port: an agent connects through a local named pipe that only the current Windows user can open, so only an agent you run on this computer can use it. Whatever the agent reads through it (log entries, Kafka messages, tool results and the files those tools read) goes to the agent's AI model provider, under that provider's terms; npeUtils cannot control that. Each Kafka connection has its own agent access level (hidden, read, or read and send), so you decide which clusters an agent sees and which it may send to. The protections stop an agent steered by log or message content, not a program or an agent that runs its own shell commands under your account. You choose which tool groups the agent sees. Network (UNC) paths stay off unless you allow them, and Settings shows a log of every agent call without log content or message values.
+
+Kafka Live connection passwords are encrypted with Windows DPAPI for the current user (the same mechanism browsers use), so the connections file is useless under another account or on another machine; use a dedicated read-only Kafka account where possible.
 
 ## Feedback
 
@@ -154,11 +159,11 @@ Bugs and ideas: [open an issue](https://github.com/mderkowski82/npeUtils-release
 
 ## Polski
 
-**npeUtils to darmowy, działający offline zestaw narzędzi dla ludzi, którzy utrzymują systemy na stosie Java / WildFly / Oracle / Kafka.** Wklejasz cokolwiek (log, stack trace, zrzut wątków, kod ORA- lub WFLY, JWT, timestamp, cron, connection string), aplikacja rozpoznaje, co to jest, i otwiera właściwe narzędzie z gotowym wynikiem. Instalator ma 3 MB, nie ma konta ani telemetrii, nic nie wychodzi z komputera.
+**npeUtils to darmowy, działający offline zestaw narzędzi dla ludzi, którzy utrzymują systemy na stosie Java / WildFly / Oracle / Kafka.** Wklejasz cokolwiek (log, stack trace, zrzut wątków, kod ORA- lub WFLY, JWT, timestamp, cron, connection string), aplikacja rozpoznaje, co to jest, i otwiera właściwe narzędzie z gotowym wynikiem. Instalator ma ok. 4,5 MB, nie ma konta ani telemetrii, nic nie wychodzi z komputera.
 
 **Dla kogo**
 
-- *Programista Java / Spring*: stack trace z root cause i zwiniętymi ramkami, JSON ↔ Java (record / Lombok / Jackson), Properties ↔ YAML, tester regex z różnicami Java / JS, `DateTimeFormatter` na żywo.
+- *Programista Java / Spring*: stack trace z root cause i zwiniętymi ramkami, JSON ↔ Java (record / Lombok / Jackson), Properties ↔ YAML, tester regex w składni Javy, `DateTimeFormatter` na żywo.
 - *Helpdesk / 2. linia wsparcia*: słowniki 123 błędów ORA- i 168 kodów WildFly / Artemis z przyczynami i „co sprawdzić” po polsku, timestamp w obie strony, analizator logu z filtrem po identyfikatorze klienta.
 - *Administrator / DevOps*: analizator `server.log` z ZIP-ów i rotowanych `.gz`, thread dump z deadlockami i wyczerpanymi pulami (Hikari, IronJacamar, Artemis), certyfikaty, connection string z testem portu.
 - *DBA / developer Oracle*: lista IN po 1000, ROWID, maski `TO_CHAR` ↔ `DateTimeFormatter`, formatter SQL z podstawianiem `?` z logów Hibernate, 16 zapytań diagnostycznych.
@@ -168,6 +173,6 @@ Bugs and ideas: [open an issue](https://github.com/mderkowski82/npeUtils-release
 
 **Język.** Interfejs jest po polsku i po angielsku (Ustawienia → Język; domyślnie język systemu). Zamknięcie okna chowa aplikację do zasobnika przy zegarku; „Zakończ” w menu ikony ją zamyka.
 
-**Prywatność.** Jedyne połączenia sieciowe to: sprawdzenie aktualizacji i pobranie modułu dużych logów (to repozytorium), odczyt czasu dla ważności wersji (nagłówek HTTP `Date`), test portu w Connection string (host, który wpiszesz) oraz brokery Kafki wskazane ręcznie w Kafka Live. Nic, co wklejasz, nie jest nigdzie wysyłane. Hasła połączeń Kafka Live są szyfrowane Windows DPAPI dla bieżącego użytkownika.
+**Prywatność.** Jedyne połączenia sieciowe to: sprawdzenie aktualizacji i pobranie modułu dużych logów (to repozytorium), odczyt czasu dla ważności wersji (nagłówek HTTP `Date`), test portu w Connection string (host, który wpiszesz, albo wskazany przez agenta, któremu na to pozwolisz) oraz brokery Kafki wskazane ręcznie w Kafka Live. Nic, co wklejasz, nie jest nigdzie wysyłane. Opcjonalny serwer MCP dla agentów AI (domyślnie wyłączony) nie otwiera portu sieciowego, ale wszystko, co agent przez niego odczyta (logi, wiadomości Kafki, wyniki narzędzi i czytane przez nie pliki), trafia do dostawcy modelu AI tego agenta. W Ustawieniach wybierasz, które grupy narzędzi agent widzi. Hasła połączeń Kafka Live są szyfrowane Windows DPAPI dla bieżącego użytkownika.
 
 **Zgłoszenia.** Błędy i pomysły: [issues](https://github.com/mderkowski82/npeUtils-releases/issues). Podaj narzędzie, wersję (Ustawienia → Aktualizacje) i, jeśli możesz, zanonimizowane wejście, na którym coś poszło nie tak.
